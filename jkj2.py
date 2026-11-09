@@ -171,4 +171,55 @@ with tab1:
                         idx = DRAFT_PLAYERS.index(curr_val) if curr_val in DRAFT_PLAYERS else 0
                         new_preds[str(i)] = st.selectbox(
                             f"{i}순위 예측 선수", 
-                            options=DRAFT_PLAYERS,
+                            options=DRAFT_PLAYERS, 
+                            index=idx, 
+                            key=f"edit_{i}"
+                        )
+                
+                btn_edit = st.form_submit_button("수정 내용 저장")
+                if btn_edit:
+                    selected_vals = list(new_preds.values())
+                    if "선택하세요" in selected_vals:
+                        st.warning("1위부터 10위까지 모든 순위의 선수를 선택해 주세요.")
+                    elif len(set(selected_vals)) < 10:
+                        st.warning("⚠️ 한 선수를 중복으로 여러 순위에 선택할 수 없습니다.")
+                    else:
+                        target_p["predictions"] = new_preds
+                        save_data(participants)
+                        st.success(f"{selected_name}님의 예측 정보가 수정되었습니다!")
+                        st.rerun()
+            
+            st.write("---")
+            if st.button(f"🗑️ '{selected_name}' 예측 카드 완전 삭제"):
+                participants = [p for p in participants if p["name"] != selected_name]
+                save_data(participants)
+                st.success("삭제되었습니다.")
+                st.rerun()
+
+# ----- 탭 2 현황표 -----
+with tab2:
+    st.write("### 📋 5인 전체 1~10위 예측 현황표")
+    if not participants:
+        st.info("아직 등록된 참가자가 없습니다.")
+    else:
+        table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
+        for p in participants:
+            preds_dict = p.get("predictions", {})
+            table_data[p["name"]] = [preds_dict.get(str(i), "-") for i in range(1, 11)]
+        
+        df = pd.DataFrame(table_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+# 하단 상시 현황표
+st.divider()
+st.write("### 📋 5인 전체 1~10위 실시간 예측 비교표")
+if not participants:
+    st.info("아직 예측을 제출한 참가자가 없습니다.")
+else:
+    table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
+    for p in participants:
+        preds_dict = p.get("predictions", {})
+        table_data[p["name"]] = [preds_dict.get(str(i), "-") for i in range(1, 11)]
+    
+    df = pd.DataFrame(table_data)
+    st.dataframe(df, use_container_width=True, hide_index=True)
