@@ -30,8 +30,8 @@ st.write("각 참가자가 1위부터 10위까지 지명될 선수 목록을 예
 # 2. 참가 현황
 st.subheader(f"참가 현황: {current_count} / {MAX_PARTICIPANTS}명")
 
-# 3. 탭 구성 (등록 / 수정·삭제 / 전체 비교)
-tab1, tab2, tab3 = st.tabs(["💳 새 카드 만들기", "✏️ 기존 제출 수정 / 삭제", "📊 5인 전체 예측 비교"])
+# 3. 탭 구성 (등록 / 수정·삭제)
+tab1, tab2 = st.tabs(["💳 새 카드 만들기", "✏️ 기존 제출 수정 / 삭제"])
 
 # ----- 탭 1: 새 카드 만들기 -----
 with tab1:
@@ -78,7 +78,6 @@ with tab2:
         selected_name = st.selectbox("본인 닉네임 선택", names)
         
         target_p = next(p for p in participants if p["name"] == selected_name)
-        # 이전 구버전 데이터와 신버전 데이터 모두 안전하게 처리
         preds_dict = target_p.get("predictions", {})
         
         with st.form("edit_form"):
@@ -119,17 +118,16 @@ with tab2:
             st.success(f"{selected_name}님의 참가 정보가 삭제되었습니다.")
             st.rerun()
 
-# ----- 탭 3: 5인 전체 예측 비교 -----
-with tab3:
-    if not participants:
-        st.info("아직 등록된 참가자가 없습니다.")
-    else:
-        st.write("### 📋 5인 전체 1~10위 예측 현황표")
-        
-        table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
-        for p in participants:
-            preds_dict = p.get("predictions", {})
-            table_data[p["name"]] = [preds_dict.get(str(i), "-") for i in range(1, 11)]
-        
-        df = pd.DataFrame(table_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+# 4. 5인 전체 예측 현황표 (항상 화면 하단에 상시 표시)
+st.divider()
+st.write("### 📋 5인 전체 1~10위 예측 현황표")
+if not participants:
+    st.info("아직 등록된 참가자가 없습니다.")
+else:
+    table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
+    for p in participants:
+        preds_dict = p.get("predictions", {})
+        table_data[p["name"]] = [preds_dict.get(str(i), "-") for i in range(1, 11)]
+    
+    df = pd.DataFrame(table_data)
+    st.dataframe(df, use_container_width=True, hide_index=True)
