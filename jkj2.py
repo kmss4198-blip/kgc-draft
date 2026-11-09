@@ -41,7 +41,6 @@ with tab1:
             st.write("---")
             st.write("### 🎯 1위 ~ 10위 지명 예측 선수 입력")
             
-            # 2열(Column)로 나누어 입력 폼 배치
             col1, col2 = st.columns(2)
             preds = {}
             
@@ -79,6 +78,8 @@ with tab2:
         selected_name = st.selectbox("본인 닉네임 선택", names)
         
         target_p = next(p for p in participants if p["name"] == selected_name)
+        # 이전 구버전 데이터와 신버전 데이터 모두 안전하게 처리
+        preds_dict = target_p.get("predictions", {})
         
         with st.form("edit_form"):
             st.write(f"**{selected_name}** 님의 1~10위 예측 정보를 수정합니다.")
@@ -89,14 +90,14 @@ with tab2:
                 for i in range(1, 6):
                     new_preds[str(i)] = st.text_input(
                         f"{i}순위 예측 선수", 
-                        value=target_p["predictions", {}].get(str(i), ""), 
+                        value=preds_dict.get(str(i), ""), 
                         key=f"edit_rank_{i}"
                     )
             with col2:
                 for i in range(6, 11):
                     new_preds[str(i)] = st.text_input(
                         f"{i}순위 예측 선수", 
-                        value=target_p["predictions", {}].get(str(i), ""), 
+                        value=preds_dict.get(str(i), ""), 
                         key=f"edit_rank_{i}"
                     )
             
@@ -125,10 +126,10 @@ with tab3:
     else:
         st.write("### 📋 5인 전체 1~10위 예측 현황표")
         
-        # DataFrame을 생성하여 1~10위 비교 표 출력
         table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
         for p in participants:
-            table_data[p["name"]] = [p["predictions", {}].get(str(i), "-") for i in range(1, 11)]
+            preds_dict = p.get("predictions", {})
+            table_data[p["name"]] = [preds_dict.get(str(i), "-") for i in range(1, 11)]
         
         df = pd.DataFrame(table_data)
         st.dataframe(df, use_container_width=True, hide_index=True)
