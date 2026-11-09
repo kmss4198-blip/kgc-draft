@@ -89,14 +89,14 @@ with tab2:
                 for i in range(1, 6):
                     new_preds[str(i)] = st.text_input(
                         f"{i}순위 예측 선수", 
-                        value=target_p["predictions"].get(str(i), ""), 
+                        value=target_p["predictions", {}].get(str(i), ""), 
                         key=f"edit_rank_{i}"
                     )
             with col2:
                 for i in range(6, 11):
                     new_preds[str(i)] = st.text_input(
                         f"{i}순위 예측 선수", 
-                        value=target_p["predictions"].get(str(i), ""), 
+                        value=target_p["predictions", {}].get(str(i), ""), 
                         key=f"edit_rank_{i}"
                     )
             
@@ -128,7 +128,7 @@ with tab3:
         # DataFrame을 생성하여 1~10위 비교 표 출력
         table_data = {"순위": [f"{i}순위" for i in range(1, 11)]}
         for p in participants:
-            table_data[p["name"]] = [p["predictions"].get(str(i), "-") for i in range(1, 11)]
+            table_data[p["name"]] = [p["predictions", {}].get(str(i), "-") for i in range(1, 11)]
         
         df = pd.DataFrame(table_data)
         st.dataframe(df, use_container_width=True, hide_index=True)
